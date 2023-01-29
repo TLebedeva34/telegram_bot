@@ -6,6 +6,7 @@ from config import keys
 class APIException(Exception):
     pass
 
+
 class Converter:
     @staticmethod
     def get_price(quote: str, base: str, amount: str):
@@ -24,14 +25,11 @@ class Converter:
             raise APIException(f'Не удалось обработать валюту {base}')
 
         try:
-            amount = float(amount)
-        except ValueError:
-            raise APIException(f'Не удалось обработать количество {amount}. Введите целое число.')
-
-        try:
             amount = str(amount)
         except ValueError:
-            raise APIException(f'Не удалось обработать количество {amount}. Введите целое число.')
+            raise APIException(f'Не удалось обработать количество {amount}. Введите число.')
 
-        r = requests.get(f'https://v6.exchangerate-api.com/v6/fc740ee612b30099c9c461c9/pair/{quote_ticker}/{base_ticker}')
-        total_base = json.loads(r.content)[keys[base]]
+        r = requests.get(f'https://v6.exchangerate-api.com/v6/fc740ee612b30099c9c461c9/pair/{quote_ticker}/{base_ticker}/{amount}')
+        resp = json.loads(r.content)
+        total_base = resp['conversion_rate'] * float(amount)
+        return total_base
